@@ -27,7 +27,7 @@ namespace Build
                 .Then(AddGoZip)
                 .Then(TestPreSignedArtifacts, skip: !args.Contains("--ci"))
                 .Then(CopyBinariesToSign, skip: !args.Contains("--ci"))
-                .Then(Test)
+                // .Then(Test) // Skipping tests for this private build
                 .Then(Zip)
                 .Then(UploadToStorage, skip: !args.Contains("--ci"))
                 .Run();
