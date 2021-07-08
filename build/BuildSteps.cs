@@ -359,6 +359,11 @@ namespace Build
 
             // all the files that are remaining are signed files, delete the signed files since they don't need to be signed again
             allFiles.ForEach(f => File.Delete(f));
+
+            Console.WriteLine("Test: Printing all files that are copied for signing");
+            var remainingFiles = Directory.GetFiles(toSignDirPath, "*.*", new EnumerationOptions() { RecurseSubdirectories = true }).ToList();
+            remainingFiles.ForEach(f => Console.WriteLine(f));
+            Console.WriteLine("Test: Printing completed!");
         }
 
         public static void TestPreSignedArtifacts()
