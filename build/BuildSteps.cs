@@ -335,10 +335,12 @@ namespace Build
                 // Grab all the files and filter the extensions not to be signed
                 var toAuthenticodeSignFiles = FileHelpers.GetAllFilesFromFilesAndDirs(FileHelpers.ExpandFileWildCardEntries(toSignPaths))
                                   .Where(file => !Settings.SignInfo.FilterExtenstionsSign.Any(ext => file.EndsWith(ext))).ToList();
-
+                Console.WriteLine("Test: Initial files to signed");
+                toAuthenticodeSignFiles.ForEach(f => Console.WriteLine(f));
+                Console.WriteLine("Test: Initial files to signed completed!");
                 string dirName = $"Azure.Functions.Cli.{supportedRuntime}.{CurrentVersion}";
                 string targetDirectory = Path.Combine(authentiCodeDirectory, dirName);
-                toAuthenticodeSignFiles.ForEach(f => FileHelpers.CopyFileRelativeToBase(f, targetDirectory, sourceDir));
+                toAuthenticodeSignFiles.ToList().ForEach(f => FileHelpers.CopyFileRelativeToBase(f, targetDirectory, sourceDir));
 
                 var toSignThirdPartyPaths = Settings.SignInfo.thirdPartyBinaries.Select(el => Path.Combine(sourceDir, el));
                 // Grab all the files and filter the extensions not to be signed
@@ -351,11 +353,19 @@ namespace Build
             // binaries we know are unsigned via sigcheck.exe
             var unSignedBinaries = GetUnsignedBinaries(toSignDirPath);
 
+            Console.WriteLine("Test: Files that are unsigned");
+            unSignedBinaries.ForEach(f => Console.WriteLine(f));
+            Console.WriteLine("Test: Files that are unsigned completed!");
+
             // binaries to be signed via signed tool
             var allFiles = Directory.GetFiles(toSignDirPath, "*.*", new EnumerationOptions() { RecurseSubdirectories = true }).ToList();
 
             // remove all entries for binaries that are actually unsigned (checked via sigcheck.exe)
             unSignedBinaries.ForEach(f => allFiles.RemoveAll(n => n.Equals(f, StringComparison.OrdinalIgnoreCase)));
+
+            Console.WriteLine("Test: Files that will be deleted");
+            allFiles.ForEach(f => Console.WriteLine(f));
+            Console.WriteLine("Test: Files that will be deleted completed!");
 
             // all the files that are remaining are signed files, delete the signed files since they don't need to be signed again
             allFiles.ForEach(f => File.Delete(f));
@@ -507,7 +517,7 @@ namespace Build
                 if (string.IsNullOrEmpty(_version))
                 {
                     var funcPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                        ? Path.Combine(Settings.OutputDir, "win-x86", "func.exe")
+                        ? Path.Combine(Settings.OutputDir, "min.win-x86", "func.exe")
                         : Path.Combine(Settings.OutputDir, "linux-x64", "func");
 
                     _version = Shell.GetOutput(funcPath, "--version");
