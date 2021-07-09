@@ -360,6 +360,13 @@ namespace Build
             // binaries to be signed via signed tool
             var allFiles = Directory.GetFiles(toSignDirPath, "*.*", new EnumerationOptions() { RecurseSubdirectories = true }).ToList();
 
+            // These assemblies are currently signed, but with an invalid root cert.
+            unSignedBinaries = unSignedBinaries.Concat(allFiles.Where(f => f.Contains("Microsoft.Azure.AppService.Middleware"))).ToList();
+
+            Console.WriteLine("Test: Files that are unsigned (after adding Middleware)");
+            unSignedBinaries.ForEach(f => Console.WriteLine(f));
+            Console.WriteLine("Test: Files that are unsigned (after adding Middleware) completed!");
+
             // remove all entries for binaries that are actually unsigned (checked via sigcheck.exe)
             unSignedBinaries.ForEach(f => allFiles.RemoveAll(n => n.Equals(f, StringComparison.OrdinalIgnoreCase)));
 
@@ -398,7 +405,6 @@ namespace Build
                 var unSignedPackages = GetUnsignedBinaries(targetDir);
                 if (unSignedPackages.Count() != 0)
                 {
-
                     var missingSignature = string.Join($",{Environment.NewLine}", unSignedPackages);
                     ColoredConsole.Error.WriteLine($"This files are missing valid signatures: {Environment.NewLine}{missingSignature}");
                     throw new Exception($"sigcheck.exe test failed. Following files are unsigned: {Environment.NewLine}{missingSignature}");
@@ -452,8 +458,10 @@ namespace Build
             var csvSep = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
             var unSignedPackages = new List<string>();
 
+            Console.WriteLine("Sigcheck output:");
             foreach (var line in csvOutputLines)
             {
+                Console.WriteLine(line);
                 // Some lines contain sigcheck header info and we filter them out by making sure
                 // there's at least six commas in each valid line.
                 if (line.Split(csvSep).Length - 1 > 6)
@@ -461,8 +469,10 @@ namespace Build
                     // Package name is the first element in each line.
                     var fileName = line.Split(csvSep)[0].Trim('"');
                     unSignedPackages.Add(fileName);
+                    Console.WriteLine($"  - Added '{fileName}' to unsigned binaries list.");
                 }
             }
+            Console.WriteLine("Sigcheck output completed!");
 
             if (unSignedPackages.Count() < 1)
             {
