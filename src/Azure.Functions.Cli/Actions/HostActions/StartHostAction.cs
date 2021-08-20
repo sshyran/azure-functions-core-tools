@@ -62,6 +62,9 @@ namespace Azure.Functions.Cli.Actions.HostActions
 
         public bool? VerboseLogging { get; set; }
 
+        public bool? Debug { get; set; }
+
+
         public List<string> EnabledFunctions { get; private set; }
         public bool SkipAzureStorageCheck { get; private set; }
 
@@ -147,12 +150,22 @@ namespace Azure.Functions.Cli.Actions.HostActions
                 .SetDefault(false)
                 .Callback(v => VerboseLogging = v);
 
+            Parser
+                .Setup<bool>("debug")
+                .WithDescription("When true, debug mode is on. Same functionality as CLI_DEBUG=1 in environment.")
+                .SetDefault(false)
+                .Callback(d => Debug = d);
+
             var parserResult = base.ParseArgs(args);
             bool verboseLoggingArgExists = parserResult.UnMatchedOptions.Any(o => o.LongName.Equals("verbose", StringComparison.OrdinalIgnoreCase));
             // Input args do not contain --verbose flag
             if (!VerboseLogging.Value && verboseLoggingArgExists)
             {
                 VerboseLogging = null;
+            }
+            if(Debug.Value)
+            {
+                Environment.SetEnvironmentVariable(Constants.CliDebug, "1");
             }
             return parserResult;
         }
