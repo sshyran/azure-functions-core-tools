@@ -12,6 +12,7 @@ namespace Azure.Functions.Cli
             FirstTimeCliExperience();
             SetupGlobalExceptionHandler();
             SetCoreToolsEnvironmentVaraibles();
+            SetDebugEnvironmentVariable(args);
             ConsoleApp.Run<Program>(args, InitializeAutofacContainer());
         }
 
@@ -44,6 +45,18 @@ namespace Azure.Functions.Cli
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(Constants.FunctionsCoreToolsEnvironment)))
             {
                 Environment.SetEnvironmentVariable(Constants.FunctionsCoreToolsEnvironment, "True");
+            }
+        }
+
+        // Parsing args from main to account for using --debug in non-startup cmd scenarios.
+        private static void SetDebugEnvironmentVariable(string[] args)
+        {
+            for(int x = 0; x < args.Length; x++)
+            {
+                if(args[x].Equals("debug"))
+                {
+                    Environment.SetEnvironmentVariable(Constants.CliDebug, "1");
+                }
             }
         }
 
