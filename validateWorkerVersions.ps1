@@ -71,7 +71,7 @@ foreach($worker in $workers) {
     if ($Update) {
         setCliPackageVersion $packageName $hostWorkerVersion
     } elseif ($hostWorkerVersion -ne $cliWorkerVersion) {
-        Write-Error "Reference to $worker in the host ($hostWorkerVersion) does not match version in the cli ($cliWorkerVersion)"
+        Write-Output "Reference to $worker in the host ($hostWorkerVersion) does not match version in the cli ($cliWorkerVersion)"
         $failedValidation = $true
     }
 }
@@ -80,9 +80,8 @@ if ($Update) {
     $cliCsprojXml.Save($cliCsprojPath)
     Write-Output "Updated worker versions! 🚀"
 } elseif ($failedValidation) {
-    Write-Error "Not all worker versions matched. 😢"
-    Write-Error "You can run './validateWorkerVersions.ps1 -Update' locally to fix this."
-    exit 1
+    Write-Output "You can run './validateWorkerVersions.ps1 -Update' locally to fix worker versions."
+    throw "Not all worker versions matched. 😢 See output for more info"
 } else {
     Write-Output "Worker versions match! 🥳"
 }
