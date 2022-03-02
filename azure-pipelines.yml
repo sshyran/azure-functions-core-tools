@@ -94,6 +94,9 @@ jobs:
       TELEMETRY_INSTRUMENTATION_KEY: $(TELEMETRY_INSTRUMENTATION_KEY)
       IntegrationBuildNumber: $(INTEGRATIONBUILDNUMBER)
     displayName: 'Executing build script'
+  - pwsh: |
+      .\validateWorkerVersions.ps1
+    displayName: 'Executing build script'
   - task: EsrpCodeSigning@1
     displayName: 'Authenticode signing'
     inputs:
